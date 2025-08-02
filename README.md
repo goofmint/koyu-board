@@ -1,25 +1,40 @@
-# Koyu Board - エンジニア向け掲示板サービス
+# Welcome to Remix!
 
-エンジニア同士の知見共有を目的としたスレッド型フォーラムサービス。
+- 📖 [Remix docs](https://remix.run/docs)
 
-## 技術スタック
+## Development
 
-- **フロントエンド**: Remix + React + TypeScript
-- **バックエンド**: Supabase (PostgreSQL + Auth + Storage + Realtime)
-- **UI**: Tailwind CSS + shadcn/ui
-- **AI**: Gemini API (モデレーション・要約・翻訳)
-- **デプロイ**: Cloudflare Pages
-- **テスト**: Vitest + Testing Library + Playwright
+Run the dev server:
 
-## 機能
+```sh
+npm run dev
+```
 
-- コミュニティ作成・管理
-- カテゴリー別スレッド・ポスト
-- リアルタイムチャット
-- AI モデレーション・要約・翻訳
-- 全文検索
-- 通知システム
+## Deployment
 
-## 開発状況
+First, build your app for production:
 
-詳細な開発タスクと進捗は `.tmp/tasks.md` で管理されています。
+```sh
+npm run build
+```
+
+Then run the app in production mode:
+
+```sh
+npm start
+```
+
+Now you'll need to pick a host to deploy it to.
+
+### DIY
+
+If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+
+Make sure to deploy the output of `npm run build`
+
+- `build/server`
+- `build/client`
+
+## Styling
+
+This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.

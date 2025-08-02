@@ -25,6 +25,7 @@ npm install
 ### 2. TypeScript設定の最適化
 
 **tsconfig.json**
+
 ```json
 {
   "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
@@ -52,22 +53,24 @@ npm install
 ### 3. ESLintとPrettier設定
 
 **.eslintrc.js**
+
 ```javascript
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   extends: [
-    "@remix-run/eslint-config",
-    "@remix-run/eslint-config/node",
-    "prettier"
+    '@remix-run/eslint-config',
+    '@remix-run/eslint-config/node',
+    'prettier',
   ],
   rules: {
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-explicit-any": "error"
-  }
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/no-explicit-any': 'error',
+  },
 };
 ```
 
 **.prettierrc**
+
 ```json
 {
   "semi": true,
@@ -87,6 +90,7 @@ npx tailwindcss init -p
 ```
 
 **tailwind.config.ts**
+
 ```typescript
 import type { Config } from 'tailwindcss';
 
@@ -171,6 +175,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ```
 
 **vitest.config.ts**
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
@@ -191,6 +196,7 @@ export default defineConfig({
 ```
 
 **app/test/setup.ts**
+
 ```typescript
 import '@testing-library/jest-dom';
 ```
@@ -198,6 +204,7 @@ import '@testing-library/jest-dom';
 ### 6. GitHub Actions CI/CD基本設定
 
 **.github/workflows/ci.yml**
+
 ```yaml
 name: CI
 
@@ -258,6 +265,7 @@ jobs:
 ### 8. 環境変数設定
 
 **.env.example**
+
 ```env
 # Supabase
 SUPABASE_URL=your_supabase_url
@@ -272,6 +280,7 @@ NODE_ENV=development
 ```
 
 **.gitignore** に追加
+
 ```
 # Environment variables
 .env
