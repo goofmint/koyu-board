@@ -179,15 +179,15 @@ CREATE TYPE notification_type AS ENUM ('mention', 'reply', 'chat_message', 'comm
 
 ### 3.1 主要コンポーネント一覧
 
-| コンポーネント名 | 責務 | 依存関係 |
-|------------------|------|----------|
-| CommunityLayout | コミュニティ全体のレイアウト | AuthProvider, CommunityProvider |
-| ForumView | フォーラム表示・ナビゲーション | CategoryList, ThreadList |
-| ThreadView | スレッド詳細とポスト表示 | PostList, PostEditor |
-| ChatView | チャット機能 | ChannelList, MessageList, MessageInput |
-| SearchProvider | 全文検索機能 | Supabaseクライアント |
-| NotificationCenter | 通知管理 | RealtimeProvider |
-| AIModeration | AI判定とモデレーション | OpenAI API |
+| コンポーネント名   | 責務                           | 依存関係                               |
+| ------------------ | ------------------------------ | -------------------------------------- |
+| CommunityLayout    | コミュニティ全体のレイアウト   | AuthProvider, CommunityProvider        |
+| ForumView          | フォーラム表示・ナビゲーション | CategoryList, ThreadList               |
+| ThreadView         | スレッド詳細とポスト表示       | PostList, PostEditor                   |
+| ChatView           | チャット機能                   | ChannelList, MessageList, MessageInput |
+| SearchProvider     | 全文検索機能                   | Supabaseクライアント                   |
+| NotificationCenter | 通知管理                       | RealtimeProvider                       |
+| AIModeration       | AI判定とモデレーション         | OpenAI API                             |
 
 ### 3.2 主要コンポーネントの詳細
 
@@ -196,6 +196,7 @@ CREATE TYPE notification_type AS ENUM ('mention', 'reply', 'chat_message', 'comm
 **目的**: フォーラムのメイン画面を管理し、カテゴリー・スレッド一覧の表示を制御
 
 **公開インターフェース**:
+
 ```typescript
 interface ForumViewProps {
   communityId: string;
@@ -211,7 +212,8 @@ interface ForumState {
 }
 ```
 
-**内部実装方針**: 
+**内部実装方針**:
+
 - React QueryでCaching戦略
 - 無限スクロールでページネーション実装
 - SSR対応でSEO最適化
@@ -221,6 +223,7 @@ interface ForumState {
 **目的**: スレッド詳細ページでポストの階層表示とリアルタイム更新
 
 **公開インターフェース**:
+
 ```typescript
 interface ThreadViewProps {
   threadId: string;
@@ -236,6 +239,7 @@ interface ThreadState {
 ```
 
 **内部実装方針**:
+
 - ネストしたポストの効率的な表示アルゴリズム
 - Supabase Realtimeでリアルタイム更新
 - AIサマリーの非同期取得と表示
@@ -245,6 +249,7 @@ interface ThreadState {
 **目的**: リアルタイムチャット機能の提供
 
 **公開インターフェース**:
+
 ```typescript
 interface ChatViewProps {
   channelId: string;
@@ -259,6 +264,7 @@ interface ChatState {
 ```
 
 **内部実装方針**:
+
 - Supabase Realtimeでメッセージング
 - 既読管理とtyping indicator
 - WebPush通知との連携
@@ -333,11 +339,11 @@ CREATE POLICY "Communities are visible based on type" ON communities
 FOR SELECT USING (
   visibility_type = 'open' OR
   (visibility_type = 'limited' AND EXISTS (
-    SELECT 1 FROM community_members 
+    SELECT 1 FROM community_members
     WHERE community_id = communities.id AND user_id = auth.uid()
   )) OR
   (visibility_type = 'closed' AND EXISTS (
-    SELECT 1 FROM community_members 
+    SELECT 1 FROM community_members
     WHERE community_id = communities.id AND user_id = auth.uid()
   ))
 );
@@ -345,7 +351,7 @@ FOR SELECT USING (
 -- スレッド・ポストの表示制御
 CREATE POLICY "Posts are visible to community members" ON posts
 FOR SELECT USING (
-  moderation_status = 'approved' OR 
+  moderation_status = 'approved' OR
   created_by = auth.uid() OR
   EXISTS (
     SELECT 1 FROM community_members cm
@@ -376,7 +382,9 @@ interface ModerationResponse {
 }
 
 // OpenAI APIを使用したモデレーション
-async function moderateContent(request: ModerationRequest): Promise<ModerationResponse> {
+async function moderateContent(
+  request: ModerationRequest
+): Promise<ModerationResponse> {
   const prompt = `
     以下のコンテンツをエンジニア向けフォーラムの投稿として評価してください。
     不適切な内容（攻撃的、スパム、オフトピックなど）がないかチェックし、
@@ -384,7 +392,7 @@ async function moderateContent(request: ModerationRequest): Promise<ModerationRe
     
     コンテンツ: ${request.content}
   `;
-  
+
   // OpenAI API呼び出し実装
 }
 ```
@@ -405,9 +413,9 @@ async function generateThreadSummary(request: SummaryRequest): Promise<string> {
     技術的な内容と議論の流れを簡潔にまとめ、200文字以内で要約してください。
     
     ポスト一覧:
-    ${posts.map(p => `- ${p.content}`).join('\n')}
+    ${posts.map((p) => `- ${p.content}`).join('\n')}
   `;
-  
+
   // OpenAI API実装
 }
 ```
@@ -428,7 +436,7 @@ async function translateContent(request: TranslationRequest): Promise<string> {
     
     原文: ${request.text}
   `;
-  
+
   // OpenAI API実装
 }
 ```
@@ -442,14 +450,18 @@ async function translateContent(request: TranslationRequest): Promise<string> {
 const setupChatRealtime = (channelId: string) => {
   return supabase
     .channel(`chat:${channelId}`)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'chat_messages',
-      filter: `channel_id=eq.${channelId}`
-    }, payload => {
-      // 新しいメッセージの処理
-    })
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'chat_messages',
+        filter: `channel_id=eq.${channelId}`,
+      },
+      (payload) => {
+        // 新しいメッセージの処理
+      }
+    )
     .subscribe();
 };
 
@@ -457,14 +469,18 @@ const setupChatRealtime = (channelId: string) => {
 const setupNotificationRealtime = (userId: string) => {
   return supabase
     .channel(`notifications:${userId}`)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'notifications',
-      filter: `user_id=eq.${userId}`
-    }, payload => {
-      // 通知の表示
-    })
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      },
+      (payload) => {
+        // 通知の表示
+      }
+    )
     .subscribe();
 };
 ```
@@ -486,12 +502,10 @@ self.addEventListener('push', (event) => {
     icon: '/icon-192x192.png',
     badge: '/badge-72x72.png',
     tag: data.type,
-    data: data.relatedId
+    data: data.relatedId,
   };
-  
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 ```
 
@@ -600,13 +614,13 @@ const uploadOptimizedImage = async (file: File): Promise<string> => {
   const optimizedFile = await compressImage(file, {
     maxWidth: 1200,
     maxHeight: 800,
-    quality: 0.8
+    quality: 0.8,
   });
-  
+
   const { data, error } = await supabase.storage
     .from('images')
     .upload(`threads/${Date.now()}.webp`, optimizedFile);
-    
+
   return data?.path || '';
 };
 ```
@@ -624,7 +638,7 @@ describe('ThreadView', () => {
   it('should display thread title and content', async () => {
     const mockThread = createMockThread();
     render(<ThreadView threadId={mockThread.id} />);
-    
+
     expect(await screen.findByText(mockThread.title)).toBeInTheDocument();
     expect(screen.getByText(mockThread.content)).toBeInTheDocument();
   });
@@ -637,18 +651,20 @@ describe('ThreadView', () => {
 // Playwrightを使用したE2Eテスト
 test('user can create and reply to thread', async ({ page }) => {
   await page.goto('/community/test-community');
-  
+
   // スレッド作成
   await page.click('[data-testid="create-thread"]');
   await page.fill('[data-testid="thread-title"]', 'Test Thread');
   await page.fill('[data-testid="thread-content"]', 'This is a test thread');
   await page.click('[data-testid="submit-thread"]');
-  
+
   // 返信作成
   await page.fill('[data-testid="reply-content"]', 'Test reply');
   await page.click('[data-testid="submit-reply"]');
-  
-  await expect(page.locator('[data-testid="post"]')).toContainText('Test reply');
+
+  await expect(page.locator('[data-testid="post"]')).toContainText(
+    'Test reply'
+  );
 });
 ```
 
@@ -670,7 +686,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run tests
         run: npm test
-      
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
@@ -701,7 +717,7 @@ const config = {
   app: {
     baseUrl: process.env.APP_BASE_URL!,
     environment: process.env.NODE_ENV!,
-  }
+  },
 };
 ```
 
@@ -727,12 +743,14 @@ interface LogEvent {
 
 const logger = {
   info: (message: string, metadata?: Record<string, any>) => {
-    console.log(JSON.stringify({
-      level: 'info',
-      message,
-      metadata,
-      timestamp: new Date(),
-    }));
+    console.log(
+      JSON.stringify({
+        level: 'info',
+        message,
+        metadata,
+        timestamp: new Date(),
+      })
+    );
   },
   // warn, error メソッドも同様
 };
@@ -741,21 +759,25 @@ const logger = {
 ## 13. 実装上の注意事項
 
 ### 13.1 セキュリティ
+
 - Supabase RLSポリシーの適切な設定
 - AI API呼び出し時のレート制限対応
 - ユーザー入力の適切なサニタイゼーション
 
 ### 13.2 パフォーマンス
+
 - 大量データに対する適切なページネーション
 - リアルタイム機能の接続数制限
 - AI機能の非同期処理とキューイング
 
 ### 13.3 運用
+
 - DB Migration戦略の確立
 - AI機能のコスト監視
 - ユーザーフィードバック収集機能
 
 ### 13.4 スケーラビリティ
+
 - コミュニティ数増加に対応するDB設計
 - ファイルストレージの容量管理
 - AIサービスの使用量最適化
