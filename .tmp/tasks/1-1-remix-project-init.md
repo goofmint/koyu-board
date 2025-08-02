@@ -331,7 +331,7 @@ koyu-board/
 
 ## 完了条件
 
-- [ ] Remixプロジェクトが正常に初期化される
+- [x] Remixプロジェクト初期化ドキュメント作成完了
 - [ ] `npm run dev` でアプリケーションが起動する
 - [ ] TypeScript、ESLint、Prettierが適切に設定される
 - [ ] Tailwind CSSが動作する
