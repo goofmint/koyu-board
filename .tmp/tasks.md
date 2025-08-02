@@ -13,10 +13,10 @@
 #### Task 1.1: プロジェクト初期設定
 
 - [x] Remix プロジェクトの初期化ドキュメント作成
-- [ ] TypeScript設定とESLint/Prettierセットアップ
-- [ ] Tailwind CSS + shadcn/ui セットアップ
-- [ ] Vitest + Testing Library セットアップ
-- [ ] GitHub Actions CI/CD設定
+- [x] TypeScript設定とESLint/Prettierセットアップ
+- [x] Tailwind CSS + shadcn/ui セットアップ
+- [x] Vitest + Testing Library セットアップ
+- [x] GitHub Actions CI/CD設定
 - **完了条件**: 基本的な開発環境が整い、`npm run dev`でアプリが起動する
 - **依存**: なし
 - **推定時間**: 4時間
