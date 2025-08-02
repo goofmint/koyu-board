@@ -34,8 +34,12 @@ supabase status
 #### 2.1 環境変数ファイル作成
 ```env
 # .env.local (開発環境)
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+```env
+# .env.server (サーバー専用環境変数)
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
@@ -50,18 +54,21 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 // app/lib/supabase.client.ts
 import { createBrowserClient } from '@supabase/ssr'
 
-export const createClient = () => {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
+export const createClient = () =>
+  createBrowserClient(window.ENV.SUPABASE_URL, window.ENV.SUPABASE_ANON_KEY)
 ```
 
 #### 3.2 サーバーサイドクライアント
 ```typescript
 // app/lib/supabase.server.ts
 import { createServerClient } from '@supabase/ssr'
+
+export const createServerClient = (request: Request) =>
+  createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    { headers: { cookie: request.headers.get('cookie') ?? '' } }
+  )
 ```
 
 ### 4. OAuth プロバイダー設定
@@ -86,13 +93,15 @@ import { createServerClient } from '@supabase/ssr'
 #### 5.1 ログイン機能
 ```typescript
 // app/lib/auth.ts
+import { createClient } from './supabase.client'
+
 export const signInWithProvider = async (provider: 'google' | 'github') => {
   const supabase = createClient()
   
   const { error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: `${window.ENV.APP_URL}/auth/callback`
     }
   })
   
@@ -112,13 +121,16 @@ export const signOut = async () => {
 #### 5.3 認証コールバック処理
 ```typescript
 // app/routes/auth.callback.tsx
+import { redirect, type LoaderFunctionArgs } from '@remix-run/node'
+import { createServerClient } from '~/lib/supabase.server'
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
   const code = url.searchParams.get('code')
   
   if (code) {
-    const supabase = createServerClient(/* ... */)
-    await supabase.auth.exchangeCodeForSession(code)
+    const supabase = createServerClient(request)
+    await supabase.auth.exchangeCodeForSession({ authCode: code })
   }
   
   return redirect('/')
