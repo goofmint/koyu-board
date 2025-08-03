@@ -18,12 +18,21 @@ import {
   isPostStatusType,
   isNotificationType,
   isModerationActionType,
+  isValidUsername,
+  isValidSlug,
+  isValidDisplayName,
+  isValidCommunityName,
+  isValidGitHubUsername,
+  isValidTwitterUsername,
   type CommunityVisibilityType,
   type CommunityMemberRole,
   type UserStatusType,
   type PostStatusType,
   type NotificationType,
   type ModerationActionType,
+  type Profile,
+  type Community,
+  type CommunityMember,
 } from './database.types';
 
 describe('Database Types', () => {
@@ -231,6 +240,171 @@ describe('Database Types', () => {
 
       MODERATION_ACTION_VALUES.forEach(value => {
         expect(isModerationActionType(value)).toBe(true);
+      });
+    });
+  });
+
+  describe('Database Interfaces', () => {
+    test('Profile interface structure', () => {
+      const profile: Profile = {
+        id: 'user-123',
+        username: 'john_doe',
+        display_name: 'John Doe',
+        bio: 'Software engineer',
+        avatar_url: 'https://example.com/avatar.jpg',
+        website_url: 'https://johndoe.dev',
+        github_username: 'johndoe',
+        twitter_username: 'johndoe',
+        location: 'San Francisco',
+        company: 'Tech Corp',
+        status: 'active',
+        is_verified: false,
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+      };
+
+      expect(profile.id).toBe('user-123');
+      expect(profile.username).toBe('john_doe');
+      expect(profile.status).toBe('active');
+      expect(profile.is_verified).toBe(false);
+    });
+
+    test('Community interface structure', () => {
+      const community: Community = {
+        id: 'community-123',
+        name: 'Engineering Team',
+        slug: 'engineering-team',
+        description: 'A community for engineers',
+        avatar_url: 'https://example.com/avatar.jpg',
+        cover_url: 'https://example.com/cover.jpg',
+        visibility: 'public',
+        member_count: 42,
+        post_count: 100,
+        created_by: 'user-123',
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+      };
+
+      expect(community.id).toBe('community-123');
+      expect(community.slug).toBe('engineering-team');
+      expect(community.visibility).toBe('public');
+      expect(community.member_count).toBe(42);
+    });
+
+    test('CommunityMember interface structure', () => {
+      const member: CommunityMember = {
+        id: 'member-123',
+        community_id: 'community-123',
+        user_id: 'user-123',
+        role: 'member',
+        joined_at: '2024-01-01T00:00:00Z',
+      };
+
+      expect(member.id).toBe('member-123');
+      expect(member.community_id).toBe('community-123');
+      expect(member.user_id).toBe('user-123');
+      expect(member.role).toBe('member');
+    });
+  });
+
+  describe('Validation Functions', () => {
+    describe('isValidUsername', () => {
+      test('accepts valid usernames', () => {
+        expect(isValidUsername('john_doe')).toBe(true);
+        expect(isValidUsername('user123')).toBe(true);
+        expect(isValidUsername('test-user')).toBe(true);
+        expect(isValidUsername('abc')).toBe(true);
+      });
+
+      test('rejects invalid usernames', () => {
+        expect(isValidUsername('jo')).toBe(false); // too short
+        expect(isValidUsername('a'.repeat(31))).toBe(false); // too long
+        expect(isValidUsername('user@example')).toBe(false); // invalid chars
+        expect(isValidUsername('user.name')).toBe(false); // invalid chars
+        expect(isValidUsername('user name')).toBe(false); // spaces
+        expect(isValidUsername('')).toBe(false); // empty
+      });
+    });
+
+    describe('isValidSlug', () => {
+      test('accepts valid slugs', () => {
+        expect(isValidSlug('engineering-team')).toBe(true);
+        expect(isValidSlug('team_123')).toBe(true);
+        expect(isValidSlug('abc')).toBe(true);
+        expect(isValidSlug('a-b-c')).toBe(true);
+      });
+
+      test('rejects invalid slugs', () => {
+        expect(isValidSlug('ab')).toBe(false); // too short
+        expect(isValidSlug('a'.repeat(101))).toBe(false); // too long
+        expect(isValidSlug('Team-Name')).toBe(false); // uppercase
+        expect(isValidSlug('team name')).toBe(false); // spaces
+        expect(isValidSlug('team@example')).toBe(false); // invalid chars
+        expect(isValidSlug('')).toBe(false); // empty
+      });
+    });
+
+    describe('isValidDisplayName', () => {
+      test('accepts valid display names', () => {
+        expect(isValidDisplayName('John Doe')).toBe(true);
+        expect(isValidDisplayName('Engineer')).toBe(true);
+        expect(isValidDisplayName('J')).toBe(true);
+        expect(isValidDisplayName('A'.repeat(100))).toBe(true);
+      });
+
+      test('rejects invalid display names', () => {
+        expect(isValidDisplayName('')).toBe(false); // empty
+        expect(isValidDisplayName('A'.repeat(101))).toBe(false); // too long
+      });
+    });
+
+    describe('isValidCommunityName', () => {
+      test('accepts valid community names', () => {
+        expect(isValidCommunityName('Engineering Team')).toBe(true);
+        expect(isValidCommunityName('Team 123')).toBe(true);
+        expect(isValidCommunityName('ABC')).toBe(true);
+        expect(isValidCommunityName('A'.repeat(100))).toBe(true);
+      });
+
+      test('rejects invalid community names', () => {
+        expect(isValidCommunityName('AB')).toBe(false); // too short
+        expect(isValidCommunityName('A'.repeat(101))).toBe(false); // too long
+        expect(isValidCommunityName('')).toBe(false); // empty
+      });
+    });
+
+    describe('isValidGitHubUsername', () => {
+      test('accepts valid GitHub usernames', () => {
+        expect(isValidGitHubUsername('octocat')).toBe(true);
+        expect(isValidGitHubUsername('github-user')).toBe(true);
+        expect(isValidGitHubUsername('user123')).toBe(true);
+        expect(isValidGitHubUsername('a')).toBe(true);
+        expect(isValidGitHubUsername('a'.repeat(39))).toBe(true);
+      });
+
+      test('rejects invalid GitHub usernames', () => {
+        expect(isValidGitHubUsername('user-')).toBe(false); // ends with hyphen
+        expect(isValidGitHubUsername('-user')).toBe(false); // starts with hyphen
+        expect(isValidGitHubUsername('user--name')).toBe(false); // consecutive hyphens
+        expect(isValidGitHubUsername('a'.repeat(40))).toBe(false); // too long
+        expect(isValidGitHubUsername('')).toBe(false); // empty
+        expect(isValidGitHubUsername('user_name')).toBe(false); // underscore
+      });
+    });
+
+    describe('isValidTwitterUsername', () => {
+      test('accepts valid Twitter usernames', () => {
+        expect(isValidTwitterUsername('twitter')).toBe(true);
+        expect(isValidTwitterUsername('user_123')).toBe(true);
+        expect(isValidTwitterUsername('a')).toBe(true);
+        expect(isValidTwitterUsername('a'.repeat(15))).toBe(true);
+      });
+
+      test('rejects invalid Twitter usernames', () => {
+        expect(isValidTwitterUsername('a'.repeat(16))).toBe(false); // too long
+        expect(isValidTwitterUsername('')).toBe(false); // empty
+        expect(isValidTwitterUsername('user-name')).toBe(false); // hyphen
+        expect(isValidTwitterUsername('user@twitter')).toBe(false); // invalid chars
       });
     });
   });

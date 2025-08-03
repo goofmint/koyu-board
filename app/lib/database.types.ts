@@ -86,3 +86,69 @@ export function isNotificationType(value: string): value is NotificationType {
 export function isModerationActionType(value: string): value is ModerationActionType {
   return MODERATION_ACTION_VALUES.includes(value as ModerationActionType);
 }
+
+// Database table interfaces
+export interface Profile {
+  id: string;
+  username: string;
+  display_name: string;
+  bio: string | null;
+  avatar_url: string | null;
+  website_url: string | null;
+  github_username: string | null;
+  twitter_username: string | null;
+  location: string | null;
+  company: string | null;
+  status: UserStatusType;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Community {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  avatar_url: string | null;
+  cover_url: string | null;
+  visibility: CommunityVisibilityType;
+  member_count: number;
+  post_count: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommunityMember {
+  id: string;
+  community_id: string;
+  user_id: string;
+  role: CommunityMemberRole;
+  joined_at: string;
+}
+
+// Validation functions for database fields
+export function isValidUsername(username: string): boolean {
+  return /^[a-zA-Z0-9_-]+$/.test(username) && username.length >= 3 && username.length <= 30;
+}
+
+export function isValidSlug(slug: string): boolean {
+  return /^[a-z0-9_-]+$/.test(slug) && slug.length >= 3 && slug.length <= 100;
+}
+
+export function isValidDisplayName(name: string): boolean {
+  return name.length >= 1 && name.length <= 100;
+}
+
+export function isValidCommunityName(name: string): boolean {
+  return name.length >= 3 && name.length <= 100;
+}
+
+export function isValidGitHubUsername(username: string): boolean {
+  return /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(username);
+}
+
+export function isValidTwitterUsername(username: string): boolean {
+  return /^[a-zA-Z0-9_]+$/.test(username) && username.length >= 1 && username.length <= 15;
+}
