@@ -21,4 +21,15 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    fs: {
+      allow: ['..'],
+    },
+  },
+  // Exclude test files from build and dev server
+  build: {
+    rollupOptions: {
+      external: (id) => id.includes('.test.') || id.includes('.spec.'),
+    },
+  },
 });
