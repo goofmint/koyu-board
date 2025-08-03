@@ -18,6 +18,8 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
+      // Exclude test files from the Remix build
+      ignoredRouteFiles: ['**/*.test.*', '**/*.spec.*'],
     }),
     tsconfigPaths(),
   ],
