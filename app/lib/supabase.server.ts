@@ -1,9 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 
-export const createSupabaseServerClient = (request: Request) =>
-  createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+export const createSupabaseServerClient = (request: Request) => {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing required Supabase environment variables');
+  }
+  
+  return createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
@@ -30,3 +37,4 @@ export const createSupabaseServerClient = (request: Request) =>
       },
     }
   );
+};
